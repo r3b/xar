@@ -67,14 +67,14 @@ static struct _hash_context *context_create(void)
 	struct _hash_context *context;
 	context = (struct _hash_context *)calloc(1,sizeof(struct _hash_context));
 	if (context) {
-		context->unarchived_cts = EVP_MD_CTX_create();
+		context->unarchived_cts = EVP_MD_CTX_new();
 		if (!context->unarchived_cts) {
 			free(context);
 			return NULL;
 		}
-		context->archived_cts = EVP_MD_CTX_create();
+		context->archived_cts = EVP_MD_CTX_new();
 		if (!context->archived_cts) {
-			EVP_MD_CTX_destroy(context->unarchived_cts);
+			EVP_MD_CTX_free(context->unarchived_cts);
 			free(context);
 			return NULL;
 		}
@@ -85,8 +85,8 @@ static struct _hash_context *context_create(void)
 static void context_destroy(struct _hash_context *context)
 {
 	if (context) {
-		EVP_MD_CTX_destroy(context->unarchived_cts);
-		EVP_MD_CTX_destroy(context->archived_cts);
+		EVP_MD_CTX_free(context->unarchived_cts);
+		EVP_MD_CTX_free(context->archived_cts);
 		free(context);
 	}
 }
@@ -113,7 +113,7 @@ int32_t xar_hash_unarchived_out(xar_t x, xar_file_t f, xar_prop_t p, void *in, s
 	
 	if(!CONTEXT(context)){
 		*context = context_create();
-		OpenSSL_add_all_digests();
+		/* OpenSSL_add_all_digests() is deprecated and unnecessary in OpenSSL 3 */
 	}
 	
 	if( !CONTEXT(context)->unarchived ){
@@ -154,7 +154,7 @@ int32_t xar_hash_archived_in(xar_t x, xar_file_t f, xar_prop_t p, void *in, size
 		
 	if(!CONTEXT(context)){
 		*context = context_create();
-		OpenSSL_add_all_digests();
+		/* OpenSSL_add_all_digests() is deprecated and unnecessary in OpenSSL 3 */
 	}
 	
 	if ( !CONTEXT(context)->archived ){

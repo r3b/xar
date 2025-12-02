@@ -34,7 +34,7 @@ static char* xar_format_md5(const unsigned char* m) {
 
 void heap_check(int fd, const char *name, const char *prop, off_t offset, off_t length, const char *csum) {
 	char *buf;
-	EVP_MD_CTX *ctx = EVP_MD_CTX_create();
+	EVP_MD_CTX *ctx = EVP_MD_CTX_new();
 	const EVP_MD *md;
 	unsigned char *md5str;
 	unsigned int len;
@@ -42,11 +42,11 @@ void heap_check(int fd, const char *name, const char *prop, off_t offset, off_t 
 	char *formattedmd5;
 
 	if( ctx == NULL ) {
-		fprintf(stderr, "EVP_MD_CTX_create returned NULL\n");
+		fprintf(stderr, "EVP_MD_CTX_new returned NULL\n");
 		exit(1);
 	}
 	fprintf(stderr, "Heap checking %s %s at offset: %" PRIu64 "\n", name, prop, HeapOff+offset);
-	OpenSSL_add_all_digests();
+	/* OpenSSL_add_all_digests() is deprecated and unnecessary in OpenSSL 3 */
 	md = EVP_get_digestbyname("md5");
 	if( md == NULL ) {
 		fprintf(stderr, "No md5 digest in openssl\n");
@@ -74,7 +74,7 @@ void heap_check(int fd, const char *name, const char *prop, off_t offset, off_t 
 	}
 	EVP_DigestUpdate(ctx, buf, length);
 	EVP_DigestFinal_ex(ctx, md5str, &len);
-	EVP_MD_CTX_destroy(ctx);
+	EVP_MD_CTX_free(ctx);
 
 	formattedmd5 = xar_format_md5(md5str);
 	if( strcmp(formattedmd5, csum) != 0 ) {

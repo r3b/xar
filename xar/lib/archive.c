@@ -117,7 +117,7 @@ static xar_t xar_new() {
 	XAR(ret)->link_hash = xmlHashCreate(0);
 	XAR(ret)->csum_hash = xmlHashCreate(0);
 	XAR(ret)->subdocs = NULL;
-	XAR(ret)->toc_ctx = EVP_MD_CTX_create();
+	XAR(ret)->toc_ctx = EVP_MD_CTX_new();
 	if(!XAR(ret)->toc_ctx) {
 		free(XAR(ret)->readbuf);
 		free((void *)ret);
@@ -222,7 +222,7 @@ xar_t xar_open(const char *file, int32_t flags) {
 		XAR(ret)->fd = XAR(ret)->heap_fd = -2;
 		return ret;
 	}
-	OpenSSL_add_all_digests();
+	/* OpenSSL_add_all_digests() is deprecated and unnecessary in OpenSSL 3 */
 	if( flags ) {
 		char *tmp1, *tmp2, *tmp3, *tmp4;
 		tmp1 = tmp2 = strdup(file);
@@ -818,7 +818,7 @@ CLOSE_BAIL:
 	free((char *)XAR(x)->filename);
 	free((char *)XAR(x)->dirname);
 	free(XAR(x)->readbuf);
-	EVP_MD_CTX_destroy(XAR(x)->toc_ctx);
+	EVP_MD_CTX_free(XAR(x)->toc_ctx);
 	free((void *)x);
 
 	return retval;
@@ -873,8 +873,7 @@ int32_t xar_opt_set(xar_t x, const char *option, const char *value) {
 		if( strcmp(value, XAR_OPT_VAL_NONE) == 0 ) {
 			XAR(x)->heap_offset = 0;
 			XAR(x)->heap_len = 0;
-		}
-		else {
+		} else {
 			const EVP_MD *md;
 			md = EVP_get_digestbyname(value);
 			if( md == NULL || EVP_MD_size(md) > HASH_MAX_MD_SIZE ) return -1;
