@@ -328,7 +328,10 @@ AC_CHECK_HEADERS([openssl/evp.h], , [have_libcrypto="0"])
 if test "x${have_libcrypto}" = "x0" ; then
   AC_MSG_ERROR([libcrypto (OpenSSL) headers not found])
 fi
-
+AC_CHECK_LIB([crypto], [EVP_MD_CTX_free], , [have_libcrypto="0"])
+if test "x${have_libcrypto}" = "x0" ; then
+  AC_MSG_ERROR([Cannot build without libcrypto])
+fi
 
 dnl
 dnl Configure libz.
