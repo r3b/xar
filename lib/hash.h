@@ -39,6 +39,7 @@
 #define _XAR_HASH_H_
 
 #include "filetree.h"
+#include <openssl/evp.h>
 
 #define _HASHMAXVAL(a,b) ((a)>=(b)?(a):(b))
 #define HASH_MAX_MD_SIZE _HASHMAXVAL(EVP_MAX_MD_SIZE,128)

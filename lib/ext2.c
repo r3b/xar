@@ -49,6 +49,7 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <sys/ioctl.h>
+#include <stdlib.h>
 #include "ext2.h"
 
 #if defined(HAVE_EXT2FS_EXT2_FS_H) && !defined(__CYGWIN__)
@@ -77,7 +78,7 @@ static void x_addprop(xar_file_t f, const char *name) {
 int xar_ext2attr_archive(xar_t x, xar_file_t f, const char* file, const char *buffer, size_t len)
 {
 	int ret = 0;
-	
+
 #if (defined(HAVE_EXT2FS_EXT2_FS_H) || defined(HAVE_LINUX_EXT2_FS_H)) && !defined(__CYGWIN__)
 	int fd, flags=0, version;
 	char *vstr;
@@ -140,7 +141,7 @@ int xar_ext2attr_archive(xar_t x, xar_file_t f, const char* file, const char *bu
 	if(! (flags & ~EXT2_NOCOMPR_FL) )
 		x_addprop(f, "NoCompBlock");
 #endif
-	if(! (flags & ~EXT2_ECOMPR_FL) )
+	if(! (flags & ~EXT2_COMPR_FL) )
 		x_addprop(f, "CompError");
 	if(! (flags & ~EXT2_BTREE_FL) )
 		x_addprop(f, "BTree");
@@ -230,7 +231,7 @@ int xar_ext2attr_extract(xar_t x, xar_file_t f, const char* file, char *buffer, 
 		flags |= EXT2_NOCOMPR_FL ;
 #endif
 	if( e2prop_get(f, "CompError", (char **)&tmp) == 0 )
-		flags |= EXT2_ECOMPR_FL ;
+		flags |= EXT2_COMPR_FL ;
 	if( e2prop_get(f, "BTree", (char **)&tmp) == 0 )
 		flags |= EXT2_BTREE_FL ;
 	if( e2prop_get(f, "HashIndexed", (char **)&tmp) == 0 )
