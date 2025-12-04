@@ -1,5 +1,5 @@
 AC_PREREQ(2.59)
-AC_INIT([Xar], [1.6.1], [xar-devel@googlegroups.com], [xar])
+AC_INIT([Xar], [1.6.2], [xar-devel@googlegroups.com], [xar])
 AC_CONFIG_SRCDIR([LICENSE])
 
 dnl Revision number for libxar.
@@ -8,17 +8,17 @@ AC_SUBST([LIB_REV])
 
 dnl xar version variables.
 XAR_MAJOR_VERSION="1"
-XAR_MINOR_VERSION="6.1"
-XAR_NUMERIC_VERSION="0x01060180"
+XAR_MINOR_VERSION="6.2"
+XAR_NUMERIC_VERSION="0x01060200"
 XAR_VERSION="${XAR_MAJOR_VERSION}.${XAR_MINOR_VERSION}"
 AC_SUBST([XAR_MAJOR_VERSION])
 AC_SUBST([XAR_MINOR_VERSION])
 AC_SUBST([XAR_NUMERIC_VERSION])
 AC_SUBST([XAR_VERSION])
 
-dnl 
+dnl
 dnl Various paths.
-dnl 
+dnl
 srcroot=$srcdir
 if test "x${srcroot}" = "x." ; then
   srcroot=""
@@ -97,7 +97,7 @@ dnl Some libtool envy
 #AC_ENABLE_SHARED
 AC_MSG_CHECKING([whether to build shared libraries])
 AC_ARG_ENABLE([shared],
-    [AC_HELP_STRING([--enable-shared],
+    [AS_HELP_STRING([--enable-shared],
 	[build shared libraries @<:@default=yes@:>@])],
 	[shared=$enableval],[shared=yes])
 AC_MSG_RESULT($shared)
@@ -105,7 +105,7 @@ AC_SUBST([shared])
 #AC_ENABLE_STATIC
 AC_MSG_CHECKING([whether to build static libraries])
 AC_ARG_ENABLE([static],
-    [AC_HELP_STRING([--enable-static],
+    [AS_HELP_STRING([--enable-static],
 	[build static libraries @<:@default=yes@:>@])],
 	[static=$enableval],[static=yes])
 AC_MSG_RESULT($static)
@@ -116,10 +116,7 @@ test "$shared" = "yes" || test "$static" = "yes"
 dnl Platform-specific settings.  abi and RPATH can probably be determined
 dnl programmatically, but doing so is error-prone, which makes it generally
 dnl not worth the trouble.
-dnl 
-dnl Define cpp macros in CPPFLAGS, rather than doing AC_DEFINE(macro), since the
-dnl definitions need to be seen before and headers are included, which is a pain
-dnl to make happen otherwise.
+dnl
 AC_CANONICAL_HOST
 case "${host}" in
   *-*-darwin*)
@@ -186,8 +183,7 @@ AC_SUBST([enable_autogen])
 AC_CHECK_HEADER([stdint.h], [C99_FIXED_WIDTH_TYPE_HEADER="#include <stdint.h>"], [AC_CHECK_HEADER([inttypes.h], [C99_FIXED_WIDTH_TYPE_HEADER="#include <inttypes.h>"], [])])
 AC_SUBST([C99_FIXED_WIDTH_TYPE_HEADER])
 
-AC_TRY_COMPILE([#include <sys/types.h> 
-#include <sys/acl.h>], [acl_t a], [AC_DEFINE([HAVE_SYS_ACL_H],[1], [define if you have sys/acl.h and it has a working acl_t type])])
+# AC_TRY_COMPILE[#include <sys/types.h> #include <sys/acl.h>], [acl_t a], [AC_DEFINE([HAVE_SYS_ACL_H],[1], [define if you have sys/acl.h and it has a working acl_t type])])
 AC_CHECK_HEADERS(ext2fs/ext2_fs.h sys/statfs.h sys/xattr.h sys/param.h sys/extattr.h libutil.h)
 AC_CHECK_FUNCS(lgetxattr)
 AC_CHECK_FUNCS(lsetxattr)
@@ -216,7 +212,7 @@ elif test $ac_cv_sizeof_uid_t = "8"; then
 AC_DEFINE(UID_STRING, PRId64)
 AC_DEFINE(UID_CAST, (uint64_t))
 else
-AC_ERROR(can not detect the size of your system's uid_t type)
+AC_MSG_ERROR(can not detect the size of your system's uid_t type)
 fi
 
 AC_CHECK_SIZEOF(gid_t)
@@ -227,7 +223,7 @@ elif test $ac_cv_sizeof_gid_t = "8"; then
 AC_DEFINE(GID_STRING, PRId64)
 AC_DEFINE(GID_CAST, (uint64_t))
 else
-AC_ERROR(can not detect the size of your system's gid_t type)
+AC_MSG_ERROR(can not detect the size of your system's gid_t type)
 fi
 
 AC_CHECK_SIZEOF(ino_t)
@@ -240,7 +236,7 @@ AC_DEFINE(INO_STRING, PRId64)
 AC_DEFINE(INO_HEXSTRING, PRIx64)
 AC_DEFINE(INO_CAST, (uint64_t))
 else
-AC_ERROR(can not detect the size of your system's ino_t type)
+AC_MSG_ERROR(can not detect the size of your system's ino_t type)
 fi
 
 AC_CHECK_SIZEOF(dev_t)
@@ -253,7 +249,7 @@ AC_DEFINE(DEV_STRING, PRId64)
 AC_DEFINE(DEV_HEXSTRING, PRIx64)
 AC_DEFINE(DEV_CAST, (uint64_t))
 else
-AC_ERROR(can not detect the size of your system's dev_t type)
+AC_MSG_ERROR(can not detect the size of your system's dev_t type)
 fi
 
 AC_CHECK_LIB(acl, acl_get_file)
@@ -263,9 +259,9 @@ AC_PREFIX_DEFAULT(/usr/local)
 
 AC_CHECK_FUNC([asprintf], AC_DEFINE([HAVE_ASPRINTF]))
 
-dnl 
+dnl
 dnl Configure libxml2.
-dnl 
+dnl
 LIBXML2_VERSION_MIN=2.6.11
 
 have_libxml2="1"
@@ -324,19 +320,19 @@ if test "x${have_libxml2}" = "x0" ; then
   AC_MSG_ERROR([Cannot build without libxml2])
 fi
 
-dnl 
+dnl
 dnl Configure libcrypto (part of OpenSSL).
-dnl 
+dnl
 have_libcrypto="1"
 AC_CHECK_HEADERS([openssl/evp.h], , [have_libcrypto="0"])
-AC_CHECK_LIB([crypto], [OpenSSL_add_all_ciphers], , [have_libcrypto="0"])
 if test "x${have_libcrypto}" = "x0" ; then
-  AC_MSG_ERROR([Cannot build without libcrypto (OpenSSL)])
+  AC_MSG_ERROR([libcrypto (OpenSSL) headers not found])
 fi
 
-dnl 
+
+dnl
 dnl Configure libz.
-dnl 
+dnl
 have_libz="1"
 AC_CHECK_HEADERS([zlib.h], , [have_libz="0"])
 AC_CHECK_LIB([z], [deflate], , [have_libz="0"])
@@ -344,7 +340,7 @@ if test "x${have_libz}" = "x0" ; then
   AC_MSG_ERROR([Cannot build without libz])
 fi
 
-dnl 
+dnl
 dnl Configure libbz2.
 dnl This doesn't support specifying a path yet, but supports explicitly
 dnl enabling or disabling bzip2 support
@@ -359,9 +355,9 @@ if test "x$with_bzip2" != "xno"; then
 	fi
 fi
 
-dnl 
+dnl
 dnl Configure liblzma.
-dnl 
+dnl
 have_liblzma="1"
 AC_ARG_WITH([lzma], [AS_HELP_STRING([--with-lzma=PATH],
 	  [Compile in lzma support.  PATH is the prefix where liblzma is installed.],
@@ -370,9 +366,9 @@ AC_ARG_WITH([lzma], [AS_HELP_STRING([--with-lzma=PATH],
 	  OLDLDFLAGS=$LDFLAGS; LDFLAGS="-L$withval/lib/ $LDFLAGS";
 	  OLDCPPFLAGS=$CPPFLAGS; CPPFLAGS="-I$withval/include/ $CPPFLAGS";
 	  AC_CHECK_HEADER([$withval/include/lzma.h], ,
-	    [have_liblzma="0"; CFLAGS=$OLDCFLAGS; LDFLAGS=$OLDLDFLAGS; 
+	    [have_liblzma="0"; CFLAGS=$OLDCFLAGS; LDFLAGS=$OLDLDFLAGS;
 	    CPPFLAGS=$OLDCPPFLAGS;])
-	  AC_CHECK_LIB([lzma],  [lzma_code], [LIBS="-L$withval/lib/ -llzma $LIBS"], 
+	  AC_CHECK_LIB([lzma],  [lzma_code], [LIBS="-L$withval/lib/ -llzma $LIBS"],
 	    [have_liblzma="0"])
 	],
 	[ AC_CHECK_HEADERS([lzma.h], , [have_liblzma="0"])
@@ -382,11 +378,11 @@ if test "x${have_liblzma}" = "x1" ; then
   AC_DEFINE([HAVE_LIBLZMA])
 fi
 
-dnl 
+dnl
 dnl Process .in files.
-dnl 
+dnl
 AC_SUBST([cfghdrs])
-AC_CONFIG_HEADER([$cfghdrs])
+AC_CONFIG_HEADERS([$cfghdrs])
 
 AC_SUBST([cfgoutputs])
 AC_CONFIG_FILES([$cfgoutputs])

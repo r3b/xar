@@ -22,7 +22,7 @@ if test "x${have_libcrypto}" = "x0" ; then
 fi
 ```
 
-### 2. Source Code Changes
+### 2. Source Code Changes 
 
 #### Removed Deprecated Initialization Functions
 
