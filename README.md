@@ -29,8 +29,3 @@ After a successful build, the standard `sudo make install` (again GNU make must
 be used) will install.
 
 See [INSTALL.md](./INSTALL.md) file for additional information.
-
-Pre-bootstrapped xar release tarballs (i.e. with configure already generated)
-can be found in the downloads section of the project page at:
-
-  http://mackyle.github.io/xar/#downloads
