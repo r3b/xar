@@ -19,4 +19,4 @@ jobs:
     - name: make install
       run: make instal
     - name: make tarball
-      run: ar cvzf xar-1.7.0-static.tar.gz -C build/static xar
+      run: tar cvzf xar-1.7.0-static.tar.gz -C build/static xar
