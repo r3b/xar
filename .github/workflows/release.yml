@@ -21,7 +21,7 @@ jobs:
         ./configure --enable-static --enable-shared --prefix=$GITHUB_WORKSPACE/build/shared/xar/
         make
         make install
-        tar cvzf xar-$GITHUB_REF_NAME-shared.tar.gz -C $GITHUB_WORKSPACE/build/shared xar
+        tar cvzf xar-${{ github.ref_name }}-shared.tar.gz -C $GITHUB_WORKSPACE/build/shared xar
         make relclean
     - name: Build Static
       run: |
@@ -29,13 +29,13 @@ jobs:
         ./configure --enable-static --disable-shared --prefix=$GITHUB_WORKSPACE/build/static/xar/
         make
         make install
-        tar cvzf xar-$GITHUB_REF_NAME-static.tar.gz -C $GITHUB_WORKSPACE/build/static xar
+        tar cvzf xar-${{ github.ref_name }}-static.tar.gz -C $GITHUB_WORKSPACE/build/static xar
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
       with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref }}
+        tag_name: ${{ github.ref_name }}
+        release_name: Release ${{ github.ref_name }}
         draft: false
         prerelease: false    
     - name: Upload Shared Release Asset
