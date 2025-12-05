@@ -1,0 +1,57 @@
+name: Create release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  checkout:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v6
+    - name: Build Shared
+      run: |
+        make relclean
+        ./autogen.sh --noconfigure
+        ./configure --enable-static --enable-shared --prefix=$GITHUB_WORKSPACE/build/shared/xar/
+        make
+        make install
+        tar cvzf xar-1.7.0-shared.tar.gz -C $GITHUB_WORKSPACE/build/shared xar
+    - name: Build Static
+      run: |
+        make relclean
+        ./autogen.sh --noconfigure
+        ./configure --enable-static --disable-shared --prefix=$GITHUB_WORKSPACE/build/static/xar/
+        make
+        make install
+        tar cvzf xar-1.7.0-static.tar.gz -C $GITHUB_WORKSPACE/build/static xar
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false    
+    - name: Upload Shared Release Asset
+      id: upload-shared-release-asset 
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./xar-1.7.0-shared.tar.gz
+        asset_name: xar-1.7.0-shared.tar.gz
+        asset_content_type: application/gzip
+    - name: Upload Static Release Asset
+      id: upload-static-release-asset 
+      uses: actions/upload-release-asset@v1
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
+        asset_path: ./xar-1.7.0-static.tar.gz
+        asset_name: xar-1.7.0-static.tar.gz
+        asset_content_type: application/gzip
