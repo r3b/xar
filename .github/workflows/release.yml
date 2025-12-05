@@ -17,15 +17,14 @@ jobs:
       uses: actions/checkout@v6
     - name: Build Shared
       run: |
-        make relclean
         ./autogen.sh --noconfigure
         ./configure --enable-static --enable-shared --prefix=$GITHUB_WORKSPACE/build/shared/xar/
         make
         make install
         tar cvzf xar-${{ github.ref }}-shared.tar.gz -C $GITHUB_WORKSPACE/build/shared xar
+        make relclean
     - name: Build Static
       run: |
-        make relclean
         ./autogen.sh --noconfigure
         ./configure --enable-static --disable-shared --prefix=$GITHUB_WORKSPACE/build/static/xar/
         make
